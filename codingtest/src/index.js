@@ -33,11 +33,11 @@ function App() {
   
   const history = useMemo(
       () => {
-          let back   =  [];      
-          let forward;
+          let back    =  [];      
+          let forward =  [];
           return{
             stack : (obj) => back = back.concat(obj)          
-            ,stackForward : (obj) =>  forward  = obj 
+            ,stackForward : (obj) =>  forward = forward.concat(obj)
             ,historyBack : function(){
                 const pop = back.pop();                 
                 this.setState( pop );
@@ -46,7 +46,10 @@ function App() {
                 if(obj){
                     setMode(obj.setMode);
                     setNumbers(obj.setNumber);
-                    setLastClickedNumber(obj.setMask);
+                    setLastClickedNumber(prevClickedNumber => { 
+                      console.log( prevClickedNumber ); 
+                      return obj.setMask                     
+                    });
                 }
             }
           }
