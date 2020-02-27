@@ -21,9 +21,7 @@ const modeDescriptions = [
   "0. 클릭한 항목을 핑크색으로 만든다. 같은 항목을 다시 클릭하면 파란색으로 만든다.",
   "1. 클릭한 항목을 삭제한다.",
   "2. 클릭한 항목과 핑크색 항목의 위치를 서로 바꾼다.",
-  "3. 기존 숫자들과 중복되지 않으면서 클릭한 숫자보다 큰 최소 자연수를, 클릭한 항목의 바로 다음자리에 삽입한다.",
-  "4. 테스트",
-  "5. 콘솔"
+  "3. 기존 숫자들과 중복되지 않으면서 클릭한 숫자보다 큰 최소 자연수를, 클릭한 항목의 바로 다음자리에 삽입한다."  
 ];
 
 function App() {
@@ -38,58 +36,73 @@ function App() {
           return{
             stack : (obj) => back = back.concat(obj)          
             ,stackForward : (obj) =>  forward = forward.concat(obj)
-            ,historyBack : function(){
-                const pop = back.pop();                 
-                this.setState( pop );
-            }             
-            ,setState: (obj) => {
+            ,historyBack : function(){ this.stackForward( this.setState( back.pop() ) ); }
+            ,historyForward : function(){ this.setState( forward.pop() ); }
+            ,backBtn : () => back.length > 0 ? true : false
+            ,setState: (obj) => {   
                 if(obj){
-                    setMode(obj.setMode);
-                    setNumbers(obj.setNumber);
-                    setLastClickedNumber(prevClickedNumber => { 
-                      console.log( prevClickedNumber ); 
+                    let stackObj = {}
+                    setMode(mode => {
+                      stackObj.setMode = mode;
+                      return obj.setMode
+                    });
+                    setNumbers(numbers => {
+                      stackObj.setNumber = numbers;
+                      return obj.setNumber
+                    });
+                    setLastClickedNumber(prevClickedNumber => {                       
+                      stackObj.setMask = prevClickedNumber;
                       return obj.setMask                     
                     });
+                    return stackObj            
                 }
-            }
+            }            
           }
       }
   ,[])
 
-  const handleChangeMode = e => setMode(Number(e.target.value));
-
-  const getStateInfo = () => {
-    console.log(   )
+  const handleChangeMode = e => {
+    setMode(mode=>{
+      history.stack( { setMode : mode ,setNumber : numbers ,setMask : prevClickedNumber} );
+      return Number(e.target.value)
+    });
   }
-
   const handleClickNumber = clickedNumber => () => {
-    history.stack( { setMode : mode ,setNumber : numbers ,setMask : prevClickedNumber} );    
     switch (mode) {
-      case 0:        
-          /* if (prevClickedNumber !== clickedNumber) {
-            setLastClickedNumber(clickedNumber);
-          } else {
-            setLastClickedNumber(null);
-          } */          
-          setLastClickedNumber( prevClickedNumber !== clickedNumber ? clickedNumber : null  );
+      case 0:          
+          setLastClickedNumber( prevClickedNumber => {
+            history.stack( { setMode : mode ,setNumber : numbers ,setMask : prevClickedNumber} );
+            return prevClickedNumber !== clickedNumber ? clickedNumber : null; 
+          });
         break;
-      case 1:        
-          setNumbers([...numbers.filter(n => n !== clickedNumber)]);
+      case 1:                  
+          setNumbers( numbers => {
+            history.stack( { setMode : mode ,setNumber : numbers ,setMask : prevClickedNumber} );
+            return [...numbers.filter(n => n !== clickedNumber)]
+          });
         break;
       case 2:
           const prevIdx = numbers.indexOf( prevClickedNumber );
           const clickIdx = numbers.indexOf( clickedNumber );
-          numbers.splice( prevIdx ,1, clickedNumber);
-          numbers.splice( clickIdx ,1, prevClickedNumber);
-          setNumbers( [...numbers] );
+          const cp1 = [...numbers]
+          cp1.splice( prevIdx ,1, clickedNumber);
+          cp1.splice( clickIdx ,1, prevClickedNumber);          
+          setNumbers( numbers => {
+            history.stack( { setMode : mode ,setNumber : numbers ,setMask : prevClickedNumber} );
+            return [...cp1]
+          });
         break;
       case 3:       
           let clickNum = clickedNumber;        
+          const cp2 = [...numbers]
           do{
             clickNum++;          
-          } while ( numbers.indexOf( clickNum ) !== -1 );        
-          numbers.splice( numbers.indexOf( clickedNumber )+1 , 0, clickNum );
-          setNumbers( [...numbers] );
+          } while ( cp2.indexOf( clickNum ) !== -1 );        
+          cp2.splice( cp2.indexOf( clickedNumber )+1 , 0, clickNum );          
+          setNumbers( numbers => {
+            history.stack( { setMode : mode ,setNumber : numbers ,setMask : prevClickedNumber} );
+            return [...cp2]
+          });
         break;
       case 4:        
         break;
@@ -100,7 +113,7 @@ function App() {
          //history.historyBack();
          //history.info()
 
-         console.log( { setMode : mode ,setNumber : numbers ,setMask : prevClickedNumber} )
+         
 
         break;  
     }
@@ -122,8 +135,8 @@ function App() {
         <FormControl>
           <FormLabel component="p">
             항목들  &nbsp;
-              <Button variant="contained" color={"primary"} onClick={()=>history.historyBack()}>실행취소</Button>&nbsp;
-              <Button variant="contained" color={"primary"} onClick={() => getStateInfo() }>다시실행</Button>
+              { history.backBtn() && <Button variant="contained" color={"primary"} onClick={()=>history.historyBack()}>실행취소</Button>}&nbsp;
+              <Button variant="contained" color={"primary"} onClick={()=>history.historyForward() }>다시실행</Button>
           </FormLabel>
           <Grid container spacing={1}>
             {numbers.map(number => (
