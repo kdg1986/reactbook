@@ -39,6 +39,7 @@ function App() {
             ,historyBack : function(){ this.stackForward( this.setState( back.pop() ) ); }
             ,historyForward : function(){ this.setState( forward.pop() ); }
             ,backBtn : () => back.length > 0 ? true : false
+            ,forwardBtn  : () => forward.length > 0 ? true : false
             ,setState: (obj) => {   
                 if(obj){
                     let stackObj = {}
@@ -136,7 +137,7 @@ function App() {
           <FormLabel component="p">
             항목들  &nbsp;
               { history.backBtn() && <Button variant="contained" color={"primary"} onClick={()=>history.historyBack()}>실행취소</Button>}&nbsp;
-              <Button variant="contained" color={"primary"} onClick={()=>history.historyForward() }>다시실행</Button>
+              { history.forwardBtn() && <Button variant="contained" color={"primary"} onClick={()=>history.historyForward() }>다시실행</Button>}
           </FormLabel>
           <Grid container spacing={1}>
             {numbers.map(number => (
