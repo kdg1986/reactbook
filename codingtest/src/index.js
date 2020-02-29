@@ -34,10 +34,10 @@ function App() {
           let back    =  [];      
           let forward =  [];
           return{
-            stack : (obj) => back = back.concat(obj)          
-            ,stackForward : (obj) =>  forward = forward.concat(obj)
-            ,historyBack : function(){ this.stackForward( this.setState( back.pop() ) ); }
+            historyBack : function(){ this.stackForward( this.setState( back.pop() ) ); }
             ,historyForward : function(){ this.setState( forward.pop() ); }
+            ,stack : (obj) => back = back.concat(obj)          
+            ,stackForward : (obj) =>  forward = forward.concat(obj)            
             ,backBtn : () => back.length > 0 ? true : false
             ,forwardBtn  : () => forward.length > 0 ? true : false
             ,setState: (obj) => {   
@@ -59,6 +59,7 @@ function App() {
                 }
             }            
           }
+          
       }
   ,[])
 
@@ -104,19 +105,7 @@ function App() {
             history.stack( { setMode : mode ,setNumber : numbers ,setMask : prevClickedNumber} );
             return [...cp2]
           });
-        break;
-      case 4:        
-        break;
-      case 5:  
-          //console.log( prevClickedNumber )
-          //history.a();
-         // history.b();
-         //history.historyBack();
-         //history.info()
-
-         
-
-        break;  
+        break;      
     }
   };
 
