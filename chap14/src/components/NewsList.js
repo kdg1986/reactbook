@@ -24,7 +24,7 @@ const sampleArticle = {
 }
 
 
-export default () => {
+export default ({ category }) => {
     
     /* const [loading, response, error] = usePromise(() => {
         const query = category === 'all' ? '' : `&category=${category}`;
@@ -40,7 +40,8 @@ export default () => {
           const fetchData = async () => {
             setLoading(true);
             try{
-                const res = await axios.get('https://newsapi.org/v2/top-headlines?country=kr&apikey=0cb830dcfc024f5089ffdbb71d33aa61');
+                const query = category === 'all' ? '' : `&category=${category}`;
+                const res = await axios.get(`https://newsapi.org/v2/top-headlines?country=kr${query}&apikey=0cb830dcfc024f5089ffdbb71d33aa61`);
                 setArticles( res.data.articles )                
             }catch(e){
                 console.log(e);
@@ -48,7 +49,7 @@ export default () => {
             setLoading(false);
           };
           fetchData();
-      },[])
+      },[category])
 
     
       // 대기중일 때
